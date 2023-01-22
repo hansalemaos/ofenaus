@@ -9,8 +9,9 @@ from math import floor
 from typing import Union, Any
 import kthread
 import psutil
+from copy_functions_and_more import copy_func
 
-
+copiedfu = copy_func(sys.settrace)
 def sleep(secs):
     maxrange = 20 * secs
     if isinstance(maxrange, float):
@@ -96,33 +97,6 @@ class timeout_context:
                 except Exception as vdw:
                     continue
 
-    # def stop_asyncio(self):
-    #     # Not working  yet
-    #     loop = asyncio.get_event_loop()
-    #
-    #
-    #     to_cancel=asyncio.all_tasks()
-    #     print(f'-----------{to_cancel}')
-    #     print('loop')
-    #
-    #     if not to_cancel:
-    #         return
-    #
-    #     for task in to_cancel:
-    #         task.cancel()
-    #
-    #     loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
-    #
-    #     for task in to_cancel:
-    #         if task.cancelled():
-    #             continue
-    #         if task.exception() is not None:
-    #             loop.call_exception_handler(
-    #                 {"message": "unhandled exception during asyncio.run() shutdown", "exception": task.exception(),
-    #                     "task": task, })
-    #     loop.close()
-    #     asyncio.set_event_loop(None)
-
     def __enter__(self):
         sys.settrace(self.trace_calls)
 
@@ -168,6 +142,7 @@ class timeout_context:
                 print(fe)
         if self.kill_process:
             raise TimeoutError
+        sys.settrace = copy_func(copiedfu)
 
     def trace_calls(self, frame, event, arg):
         if event != "call":
